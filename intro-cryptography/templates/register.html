@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Registro - Crypto Login System{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 0 auto;">
+    <h2 style="text-align: center; margin-bottom: 2rem; color: #667eea;">
+        🔐 Crear Cuenta Nueva
+    </h2>
+    
+    <div class="loading">
+        <div class="spinner"></div>
+        <p>Creando cuenta y enviando correo de verificación...</p>
+    </div>
+    
+    <form id="registerForm">
+        <div class="form-group">
+            <label for="username">Nombre de Usuario:</label>
+            <input type="text" id="username" name="username" required 
+                   pattern="[a-zA-Z0-9_]{3,20}" 
+                   title="3-20 caracteres, solo letras, números y guión bajo">
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Correo Electrónico:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required 
+                   minlength="8" 
+                   title="Mínimo 8 caracteres">
+        </div>
+        
+        <div class="form-group">
+            <label for="confirmPassword">Confirmar Contraseña:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%;">Registrarse</button>
+    </form>
+    
+    <div style="text-align: center; margin-top: 1rem;">
+        <p>¿Ya tienes cuenta? <a href="{{ url_for('login') }}" style="color: #667eea;">Inicia sesión</a></p>
+    </div>
+    
+    <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+        <h4 style="color: #667eea;">Seguridad Implementada:</h4>
+        <ul>
+            <li>Hash SHA-256 del lado del cliente</li>
+            <li>PBKDF2 con salt en el servidor</li>
+            <li>Verificación por correo electrónico</li>
+            <li>Tokens seguros de 256 bits</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('username').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    // Validaciones del lado del cliente
+    if (password !== confirmPassword) {
+        showAlert('Las contraseñas no coinciden');
+        return;
+    }
+    
+    if (password.length < 8) {
+        showAlert('La contraseña debe tener al menos 8 caracteres');
+        return;
+    }
+    
+    toggleLoading(true);
+    
+    try {
+        // Hash de la contraseña del lado del cliente
+        const passwordHash = hashPassword(password);
+        console.log('🔐 Hash SHA-256 generado:', passwordHash);
+        
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                password_hash: passwordHash
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert(data.message, 'success');
+            document.getElementById('registerForm').reset();
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 3000);
+        } else {
+            showAlert(data.message);
+        }
+    } catch (error) {
+        showAlert('Error de conexión. Intenta nuevamente.');
+    } finally {
+        toggleLoading(false);
+    }
+});
+</script>
+{% endblock %}

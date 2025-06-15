@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión - Crypto Login System{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 400px; margin: 0 auto;">
+    <h2 style="text-align: center; margin-bottom: 2rem; color: #667eea;">
+        🔐 Iniciar Sesión
+    </h2>
+    
+    <div class="loading">
+        <div class="spinner"></div>
+        <p>Verificando credenciales...</p>
+    </div>
+    
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="username">Nombre de Usuario:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%;">Iniciar Sesión</button>
+    </form>
+    
+    <div style="text-align: center; margin-top: 1rem;">
+        <p>
+            <a href="{{ url_for('forgot_password') }}" style="color: #667eea;">¿Olvidaste tu contraseña?</a>
+        </p>
+        <p>
+            ¿No tienes cuenta? <a href="{{ url_for('register') }}" style="color: #667eea;">Regístrate</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    toggleLoading(true);
+    
+    try {
+        // Hash de la contraseña del lado del cliente
+        const passwordHash = hashPassword(password);
+        console.log('🔐 Hash SHA-256 para login:', passwordHash);
+        
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                password_hash: passwordHash
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert(data.message, 'success');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1000);
+        } else {
+            showAlert(data.message);
+        }
+    } catch (error) {
+        showAlert('Error de conexión. Intenta nuevamente.');
+    } finally {
+        toggleLoading(false);
+    }
+});
+</script>
+{% endblock %}

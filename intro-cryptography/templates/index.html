@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Crypto Login System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 style="text-align: center; margin-bottom: 2rem; color: #667eea;">
+        🔐 Sistema de Autenticación Criptográfica
+    </h1>
+    
+    <p style="text-align: center; margin-bottom: 2rem; font-size: 1.1rem;">
+        Bienvenido al sistema de inicio de sesión más seguro del IPN-ESCOM.<br>
+        Implementamos <strong>SHA-256</strong> del lado del cliente y <strong>PBKDF2</strong> en el servidor.
+    </p>
+    
+    <div class="crypto-facts">
+        {% for fact in facts %}
+        <div class="fact-card">
+            <div class="fact-icon">{{ fact.icon }}</div>
+            <h3 style="color: #667eea; margin-bottom: 1rem;">{{ fact.title }}</h3>
+            <p>{{ fact.description }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div style="text-align: center; margin-top: 2rem;">
+        {% if session.user_id %}
+            <a href="{{ url_for('dashboard') }}" class="btn">Ir al Dashboard</a>
+            <a href="{{ url_for('download_pdf') }}" class="btn btn-secondary">Descargar PDF de Criptografía</a>
+        {% else %}
+            <a href="{{ url_for('register') }}" class="btn">Registrarse</a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">Iniciar Sesión</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

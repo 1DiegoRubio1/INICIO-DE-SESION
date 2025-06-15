@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Crypto Login System{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 style="text-align: center; margin-bottom: 2rem; color: #667eea;">
+        🏠 Dashboard de {{ user.username }}
+    </h1>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        <!-- Información del Usuario -->
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+            <h3 style="color: #667eea; margin-bottom: 1rem;">👤 Mi Información</h3>
+            <p><strong>Usuario:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Registro:</strong> {{ user.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+            <p><strong>Último acceso:</strong> 
+                {% if user.last_login %}
+                    {{ user.last_login.strftime('%d/%m/%Y %H:%M') }}
+                {% else %}
+                    Primer acceso
+                {% endif %}
+            </p>
+            <p><strong>Verificado:</strong> 
+                {% if user.is_verified %}
+                    <span style="color: green;">✅ Sí</span>
+                {% else %}
+                    <span style="color: red;">❌ No</span>
+                {% endif %}
+            </p>
+        </div>
+        
+        <!-- Acciones Rápidas -->
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+            <h3 style="color: #667eea; margin-bottom: 1rem;">⚡ Acciones Rápidas</h3>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <a href="{{ url_for('download_pdf') }}" class="btn btn-success">
+                    📄 Descargar PDF de Criptografía
+                </a>
+                <a href="{{ url_for('forgot_password') }}" class="btn btn-secondary">
+                    🔑 Cambiar Contraseña
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Historial de Intentos de Login -->
+    <div style="margin-top: 2rem;">
+        <h3 style="color: #667eea; margin-bottom: 1rem;">📊 Últimos Intentos de Inicio de Sesión</h3>
+        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px;">
+            {% if attempts %}
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 0.5rem; text-align: left;">Fecha</th>
+                            <th style="padding: 0.5rem; text-align: left;">IP</th>
+                            <th style="padding: 0.5rem; text-align: left;">Estado</th>
+                            <th style="padding: 0.5rem; text-align: left;">Navegador</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attempt in attempts %}
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 0.5rem;">{{ attempt.timestamp.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                            <td style="padding: 0.5rem;">{{ attempt.ip_address }}</td>
+                            <td style="padding: 0.5rem;">
+                                {% if attempt.success %}
+                                    <span style="color: green;">✅ Exitoso</span>
+                                {% else %}
+                                    <span style="color: red;">❌ Fallido</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 0.5rem; font-size: 0.8rem;">
+                                {{ attempt.user_agent[:50] }}{% if attempt.user_agent|length > 50 %}...{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No hay intentos de inicio de sesión registrados.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Información Técnica -->
+    <div style="margin-top: 2rem; background: #e9ecef; padding: 1.5rem; border-radius: 10px;">
+        <h3 style="color: #667eea; margin-bottom: 1rem;">🔒 Información de Seguridad</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div>
+                <h4>Hash del Cliente</h4>
+                <p>SHA-256 (256 bits)</p>
+            </div>
+            <div>
+                <h4>Hash del Servidor</h4>
+                <p>PBKDF2 con Salt</p>
+            </div>
+            <div>
+                <h4>Comunicación</h4>
+                <p>TLS 1.2+</p>
+            </div>
+            <div>
+                <h4>Tokens</h4>
+                <p>256 bits de entropía</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
